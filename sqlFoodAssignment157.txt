@@ -1,0 +1,134 @@
+create table menu(
+        menu_id varchar(10) primary key,
+	menu_name varchar(100),
+	menu_description varchar(500));
+insert into menu values("m1","pizza","hello pizza"),
+			("m2","cake","hello cake"),
+			("m3","coffee","hello coffee"),
+			("m4","soda","hello soda");
+ select * from menu;
++---------+-----------+------------------+
+| menu_id | menu_name | menu_description |
++---------+-----------+------------------+
+| m1      | pizza     | hello pizza      |
+| m2      | cake      | hello cake       |
+| m3      | coffee    | hello coffee     |
+| m4      | soda      | hello soda       |
++---------+-----------+------------------+
+4 rows in set (0.00 sec)
+
+
+create table food(
+        food_id varchar(10) primary key,
+	food_name varchar(100) UNIQUE,
+	food_price varchar(100) NOT NULL,
+        menu_id varchar(10),
+	foreign key(menu_id) references menu(menu_id));
+insert into food values("f1","chicken pizza","1000","m1"),
+			("f2","seafood pizza","1000","m1"),
+			("f3","cheese cake","1000","m2"),
+			("f4","ice coffee","1000","m3"),
+			("f5","kiwi soda","1000","m4"),
+			("f6","chocolate cake","1000","m2"),
+			("f7","hot coffee","1000","m3");
+select * from food;
++---------+----------------+------------+---------+
+| food_id | food_name      | food_price | menu_id |
++---------+----------------+------------+---------+
+| f1      | chicken pizza  | 1000       | m1      |
+| f2      | seafood pizza  | 1000       | m1      |
+| f3      | cheese cake    | 1000       | m2      |
+| f4      | ice coffee     | 1000       | m3      |
+| f5      | kiwi soda      | 1000       | m4      |
+| f6      | chocolate cake | 1000       | m2      |
+| f7      | hot coffee     | 1000       | m3      |
++---------+----------------+------------+---------+
+7 rows in set (0.00 sec)
+
+
+create table ordertable(
+        order_id varchar(10) primary key,
+	sale_date date,
+	qty double,
+        food_id varchar(10),
+        price double,
+	total_price varchar(100),
+	foreign key(food_id) references food(food_id));
+insert into ordertable values("o1","2019-02-27",5,"f1",200,1000),
+			     ("o2","2019-03-13",4,"f2",200,800),
+			     ("o3","2019-04-27",3,"f2",1000,3000),
+			     ("o4","2019-02-11",6,"f4",200,1200),
+			     ("o5","2019-07-05",5,"f3",40,200),
+			     ("o6","2019-09-27",1,"f6",400,400),
+			     ("o7","2019-02-03",8,"f5",200,1600),
+			     ("o8","2019-01-22",3,"f6",300,900),
+			     ("o9","2019-12-11",2,"f7",700,1400);
+select * from ordertable;
++----------+------------+------+---------+-------+-------------+
+| order_id | sale_date  | qty  | food_id | price | total_price |
++----------+------------+------+---------+-------+-------------+
+| o1       | 2019-02-27 |    5 | f1      |   200 |        1000 |
+| o2       | 2019-03-13 |    4 | f2      |   200 |         800 |
+| o3       | 2019-02-27 |    3 | f2      |  1000 |        3000 |
+| o4       | 2019-02-11 |    6 | f4      |   200 |        1200 |
+| o5       | 2019-02-27 |    5 | f3      |    40 |         200 |
+| o6       | 2019-09-27 |    1 | f6      |   400 |         400 |
+| o7       | 2019-03-13 |    8 | f5      |   200 |        1600 |
+| o8       | 2019-02-11 |    3 | f6      |   300 |         900 |
+| o9       | 2019-03-13 |    2 | f7      |   700 |        1400 |
++----------+------------+------+---------+-------+-------------+
+9 rows in set (0.01 sec)
+
+
+ select  food.food_name,ordertable.total_price
+   	 from food,ordertable
+    	 where ordertable.total_price in (select max(ordertable.total_price) from ordertable)
+     	 group by ordertable.food_id;
++-------------+-------------+
+| food_name   | total_price |
++-------------+-------------+
+| cheese cake |        3000 |
++-------------+-------------+
+1 row in set (0.00 sec)
+
+ select  food.food_name,ordertable.total_price
+   	 from food,ordertable
+    	 where ordertable.total_price in (select min(ordertable.total_price) from ordertable)
+     	 group by ordertable.food_id;
++-------------+-------------+
+| food_name   | total_price |
++-------------+-------------+
+| cheese cake |         200 |
++-------------+-------------+
+1 row in set (0.00 sec)
+
+
+SELECT ordertable.sale_date,sum(ordertable.total_price) as sale_amount
+FROM ordertable
+GROUP BY ordertable.sale_date;
++------------+-------------+
+| sale_date  | sale_amount |
++------------+-------------+
+| 2019-02-27 |        4200 |
+| 2019-03-13 |        3800 |
+| 2019-02-11 |        2100 |
+| 2019-09-27 |         400 |
++------------+-------------+
+4 rows in set (0.00 sec)
+
+
+select ordertable.sale_date as date,sum(ordertable.total_price) as total
+from ordertable
+where sale_date between "2019-02-27" and  "2019-09-27" ;
++------------+-------+
+| date       | total |
++------------+-------+
+| 2019-02-27 |  8400 |
++------------+-------+
+
+
+
+
+
+
+
